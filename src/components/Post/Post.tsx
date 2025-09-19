@@ -1,9 +1,16 @@
-
 import style from "./Post.module.css"
 import { Comment } from "../Comments/Comment";
 import { Avatar } from "../Avatar/Avatar";
+import { ptBR  } from "date-fns/locale";
+import { formatDistanceToNow } from "date-fns";
 
 
+
+interface ContentLine {
+    type: 'paragraph' | 'link';
+    content?: string;
+    description?: string;
+}
 
 interface AuthorProps {
     
@@ -15,7 +22,7 @@ interface AuthorProps {
     };
     
     type: string;
-    content: string;
+    content: ContentLine[];
     description?: string;
     publishedAt: string;
 }
@@ -31,6 +38,11 @@ export function Post({ author, type, content, description, publishedAt }: Author
         hour12: false,
     });
 
+    const publishedDateRelativeToNow = formatDistanceToNow(new Date(publishedAt), {
+        locale: ptBR,
+        addSuffix: true,
+    });
+
     return (
         <article className={style.post}>
             <header className="">
@@ -43,10 +55,21 @@ export function Post({ author, type, content, description, publishedAt }: Author
                     </div>
                 </div>
            
-                <time title="15 de Setembro de 2025 as 15:27" dateTime="15-09-2025 15:27:00" className="">{publishedDateFormatted}</time>
+                <time title={publishedDateFormatted} dateTime={new Date(publishedAt).toISOString()} className="">{publishedDateRelativeToNow}</time>
             </header>
             <div className={style.content}>
-                <p className="">Fala pessoal 👋</p>
+                {content.map((line,i) => {
+                    if (line.type === 'paragraph') {
+                        return (
+                            <p key={i} className="">{line.content}</p>
+                        )
+                    }
+                    else if (line.type === 'link') {
+                        return <p key={i}><a href="#">{line.description}</a></p>;
+                    }
+                })}
+
+                {/* <p className="">Fala pessoal 👋</p>
                 <p className="">{content}</p>
                 <p className="">
                     Acesse e deixe seu feedback 👉
@@ -55,7 +78,7 @@ export function Post({ author, type, content, description, publishedAt }: Author
                 <p className="">
                     <a>#uiux</a>{''}
                     <a>#userexperience</a>{''}
-                </p>
+                </p> */}
             </div>
             <form className={style.commentForm}>
                 <strong className="">Deixe seu feedback</strong>
