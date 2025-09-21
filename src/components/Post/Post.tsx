@@ -3,32 +3,29 @@ import { Comment } from "../Comments/Comment";
 import { Avatar } from "../Avatar/Avatar";
 import { ptBR  } from "date-fns/locale";
 import { formatDistanceToNow } from "date-fns";
+import { useState } from "react";
+import type { FormEvent } from "react";
 
-
-
-interface ContentLine {
-    type: 'paragraph' | 'link';
-    content?: string;
-    description?: string;
-}
 
 interface AuthorProps {
-    
     author: {
         name: string,
         role: string,
         avatarUrl: string,
-        linkedin?: string
     };
-    
-    type: string;
-    content: ContentLine[];
-    description?: string;
-    publishedAt: string;
+    text: string,
+    socialMedia: string[];
+    hashtags: string[];
+    publishedAt: Date;
 }
 
+//const comments = string | number[];
 
-export function Post({ author, type, content, description, publishedAt }: AuthorProps) {
+export function Post({ author, text, socialMedia, hashtags, publishedAt }: AuthorProps) {
+    const [comments,setComments] = useState([" "]);
+
+    const [newCommentText, setNewCommentText] = useState("");
+
     const publishedDateFormatted = new Date(publishedAt).toLocaleDateString('pt-BR', {
         day: '2-digit',
         month: 'long',
@@ -42,6 +39,36 @@ export function Post({ author, type, content, description, publishedAt }: Author
         locale: ptBR,
         addSuffix: true,
     });
+
+    // Change new comment text
+    function handleNewCommentChange(event: React.ChangeEvent<HTMLTextAreaElement>) {
+        event.target.setCustomValidity("");
+        setNewCommentText(event.target.value);
+    }
+    // Create new comment
+    function handleCreateNewComment(event: FormEvent<HTMLFormElement>) {
+        event?.preventDefault();
+        //const formData = new FormData(event.currentTarget);
+        //const newCommentTextD = formData.get("comment") as string;
+        //if (!newCommentText.trim()) return;
+        setComments([...comments, newCommentText]);
+        console.log("Novo comentário criado: ", newCommentText);
+        //event.currentTarget.reset();
+        setNewCommentText("");
+    }
+    // Delete comment
+    function deleteComment(comment: string) {
+        console.log("Deletar comentário");
+        const commentsWithoutDeletedOne = comments.filter(c => {
+            return c !== comment
+        });
+        setComments(commentsWithoutDeletedOne);
+    } 
+
+    // Validity check
+    function handleNewCommentInvalid(event: React.InvalidEvent<HTMLTextAreaElement>) {
+        event.target.setCustomValidity("Esse campo é obrigatório!");
+    }
 
     return (
         <article className={style.post}>
@@ -58,17 +85,28 @@ export function Post({ author, type, content, description, publishedAt }: Author
                 <time title={publishedDateFormatted} dateTime={new Date(publishedAt).toISOString()} className="">{publishedDateRelativeToNow}</time>
             </header>
             <div className={style.content}>
-                {content.map((line,i) => {
-                    if (line.type === 'paragraph') {
-                        return (
-                            <p key={i} className="">{line.content}</p>
-                        )
-                    }
-                    else if (line.type === 'link') {
-                        return <p key={i}><a href="#">{line.description}</a></p>;
-                    }
-                })}
+                <p>{text}</p>
 
+                {socialMedia.length > 0 && (
+                    <p>
+                        <strong>Redes sociais: </strong>
+                        {socialMedia.map((sm, i) => (
+                            <a key={i} href="#">
+                                {sm}
+                            </a>
+                        ))}
+                    </p>
+                )}
+
+                {hashtags.length > 0 && (
+                    <p>
+                        {hashtags.map((tag, i) => (
+                            <a key={i} href="#">
+                                {tag}
+                            </a>
+                        ))}
+                    </p>
+                )}
                 {/* <p className="">Fala pessoal 👋</p>
                 <p className="">{content}</p>
                 <p className="">
@@ -80,15 +118,23 @@ export function Post({ author, type, content, description, publishedAt }: Author
                     <a>#userexperience</a>{''}
                 </p> */}
             </div>
-            <form className={style.commentForm}>
+            <form onSubmit={handleCreateNewComment} className={style.commentForm}>
                 <strong className="">Deixe seu feedback</strong>
-                <textarea className="" placeholder="Deixe seu comentário"/>
+                <textarea
+                    onChange={handleNewCommentChange}
+                    value={newCommentText}
+                    name="comment"
+                    className=""
+                    placeholder="Deixe seu comentário"
+                    onInvalid={handleNewCommentInvalid}
+                    required
+                />
                 <button type="submit" className="">Comentar </button>
             </form>
-         
-            <Comment />
-            <Comment />
-            <Comment />
+            {comments.map((comment,id) => {
+                return <Comment key={id} content={comment} onDeleteComment={deleteComment} />
+            }
+            )}
         </article>
     )
 }
