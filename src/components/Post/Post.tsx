@@ -25,7 +25,7 @@ export function Post({ author, text, socialMedia, hashtags, publishedAt }: Autho
     const [comments,setComments] = useState([" "]);
 
     const [newCommentText, setNewCommentText] = useState("");
-
+    // Format date
     const publishedDateFormatted = new Date(publishedAt).toLocaleDateString('pt-BR', {
         day: '2-digit',
         month: 'long',
@@ -34,9 +34,9 @@ export function Post({ author, text, socialMedia, hashtags, publishedAt }: Autho
         minute: '2-digit',
         hour12: false,
     });
-
+    // Relative date
     const publishedDateRelativeToNow = formatDistanceToNow(new Date(publishedAt), {
-        locale: ptBR,
+        locale: ptBR ,
         addSuffix: true,
     });
 
@@ -65,10 +65,12 @@ export function Post({ author, text, socialMedia, hashtags, publishedAt }: Autho
         setComments(commentsWithoutDeletedOne);
     } 
 
-    // Validity check
+    // Validação do campo de comentário
     function handleNewCommentInvalid(event: React.InvalidEvent<HTMLTextAreaElement>) {
         event.target.setCustomValidity("Esse campo é obrigatório!");
     }
+
+    const isNewCommentEmpty = newCommentText.length === 0;
 
     return (
         <article className={style.post}>
@@ -129,10 +131,15 @@ export function Post({ author, text, socialMedia, hashtags, publishedAt }: Autho
                     onInvalid={handleNewCommentInvalid}
                     required
                 />
-                <button type="submit" className="">Comentar </button>
+                <button
+                    disabled={isNewCommentEmpty}
+                    type="submit"
+                    className=""
+                >Publicar
+                </button>
             </form>
             {comments.map((comment,id) => {
-                return <Comment key={id} content={comment} onDeleteComment={deleteComment} />
+                return <Comment key={id} contentComment={comment} onDeleteComment={deleteComment} />
             }
             )}
         </article>

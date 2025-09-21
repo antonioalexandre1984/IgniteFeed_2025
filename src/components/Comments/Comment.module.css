@@ -83,7 +83,9 @@
     color: var(--gray-400);
     cursor: pointer;
     transition: color 0.2s;
-    
+    display: flex;
+    align-items: center;
+    gap: 0.2rem;
 }
 
 .commentBox footer button:hover{
