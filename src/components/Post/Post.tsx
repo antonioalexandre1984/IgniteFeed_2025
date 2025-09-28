@@ -126,7 +126,6 @@ export function Post({ author, text, socialMedia, hashtags, publishedAt }: Autho
                     onChange={handleNewCommentChange}
                     value={newCommentText}
                     name="comment"
-                    className=""
                     placeholder="Deixe seu comentário"
                     onInvalid={handleNewCommentInvalid}
                     required
