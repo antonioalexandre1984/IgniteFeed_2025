@@ -50,7 +50,7 @@ export function Post({ author, text, socialMedia, hashtags, publishedAt }: Autho
         event?.preventDefault();
         //const formData = new FormData(event.currentTarget);
         //const newCommentTextD = formData.get("comment") as string;
-        //if (!newCommentText.trim()) return;
+        //if (!newCommentText.trim()) return; // Usado para limpar a textarea apos inserção do comentário
         setComments([...comments, newCommentText]);
         console.log("Novo comentário criado: ", newCommentText);
         //event.currentTarget.reset();
